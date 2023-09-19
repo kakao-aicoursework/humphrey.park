@@ -9,6 +9,7 @@ from chatapp import style
 
 filename = f"{config.app_name}/{config.app_name}.py"
 
+
 def qa(question: str, answer: str) -> rx.Component:
     return rx.box(
         rx.box(
@@ -16,11 +17,12 @@ def qa(question: str, answer: str) -> rx.Component:
             text_align="right",
         ),
         rx.box(
-            rx.text(answer, style=style.answer_style),
+            rx.html(answer, style=style.answer_style),
             text_align="left",
         ),
         margin_y="1em",
     )
+
 
 def chat() -> rx.Component:
     return rx.box(
@@ -30,20 +32,31 @@ def chat() -> rx.Component:
         )
     )
 
+
 def action_bar() -> rx.Component:
-    return rx.hstack(
-        rx.input(
-            value=State.question,
-            placeholder="Ask a question",
-            on_change=State.set_question,
-            style=style.input_style,
+    return rx.form(
+        rx.form_control(
+            rx.hstack(
+                rx.input(
+                    placeholder="Ask a question",
+                    id="question",
+                    value=State.question,
+                    on_change=State.set_question,
+                    style=style.input_style,
+                ),
+                rx.button(
+                    rx.text("Ask"),
+                    type_="submit",
+                    style=style.button_style,
+                    is_disabled=State.processing,
+                ),
+            ),
+            is_disabled=State.processing,
         ),
-        rx.button(
-            "Ask",
-            on_click=State.answer,
-            style=style.button_style,
-        ),
+        on_submit=[State.answer, rx.set_value("question", "")],
+        width="100%",
     )
+
 def index() -> rx.Component:
     return rx.container(
         chat(),
