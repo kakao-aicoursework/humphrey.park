@@ -57,13 +57,13 @@ class State(rx.State):
         answer = "I don't know!"
         self.chat_history.append((self.question, ""))
 
+        answer = chain.run(self.question)
+        memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
+
         # Clear the question input.
         self.question = ""
         # Yield here to clear the frontend input before continuing.
         yield
-
-        answer = chain.run(self.question)
-        memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
 
         for i in range(len(answer)):
             # Pause to show the streaming effect.
