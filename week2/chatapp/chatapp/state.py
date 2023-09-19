@@ -52,6 +52,9 @@ class State(rx.State):
     chat_history: list[tuple[str, str]]
 
     def answer(self):
+        if len(self.question) < 1:
+            return None
+
         # Set the processing flag to true and yield.
         self.processing = True
 
@@ -74,9 +77,6 @@ class State(rx.State):
         )
 
         yield
-
-        print(f'답변을 메모리에 저장')
-        memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
 
         print(f'처리 완료')
         # Toggle the processing flag.
