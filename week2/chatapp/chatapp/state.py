@@ -73,12 +73,11 @@ class State(rx.State):
             answer.replace('\n', '<br />'),
         )
 
+        yield
+
+        print(f'답변을 메모리에 저장')
         memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
 
+        print(f'처리 완료')
         # Toggle the processing flag.
         self.processing = False
-
-
-
-
-
