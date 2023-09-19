@@ -37,7 +37,7 @@ prompt = PromptTemplate(
 chain = LLMChain(
     llm=llm,
     prompt=prompt,
-    # verbose=True,
+    verbose=True,
     memory=memory
 )
 
@@ -53,12 +53,16 @@ class State(rx.State):
     chat_history: list[tuple[str, str]]
 
     async def answer(self):
-        # Add to the answer as the chatbot responds.
-        answer = ""
-        self.chat_history.append((self.question, answer))
+        # Our chatbot is not very smart right now...
+        answer = "I don't know!"
+        self.chat_history.append((self.question, ""))
+
+        # Clear the question input.
+        self.question = ""
+        # Yield here to clear the frontend input before continuing.
+        yield
 
         answer = chain.run(self.question)
-        answer = answer.replace("\n", "<br />")
         memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
 
         for i in range(len(answer)):
@@ -70,9 +74,3 @@ class State(rx.State):
                 answer[: i + 1],
             )
             yield
-
-        # Clear the question input.
-        self.question = ""
-
-        # Yield here to clear the frontend input before continuing.
-        yield
