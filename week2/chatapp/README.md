@@ -10,6 +10,18 @@
 
 ### Step1. text 파일을 ConversationSummaryMemory로 저장해두고
 ```python
+from langchain.chains import LLMChain
+from langchain.chat_models import ChatOpenAI
+
+# 참조: https://python.langchain.com/docs/use_cases/chatbots
+from langchain.memory import ConversationSummaryMemory
+
+# 참조: https://python.langchain.com/docs/modules/model_io/prompts/prompt_templates/
+from langchain.prompts import (
+    PromptTemplate
+)
+
+
 llm = ChatOpenAI(model_name='gpt-3.5-turbo-16k', temperature=0.9)
 
 def loadFile(file_path: str) -> str:
@@ -19,6 +31,7 @@ def loadFile(file_path: str) -> str:
 
 
 memory = ConversationSummaryMemory(llm=llm)
+
 # 카카오싱크에 대한 데이터를 초기 대화 기록에 남겨둠
 memory.save_context({"input": loadFile('./assets/project_data_카카오싱크.txt')}, {"output": ''})
 
@@ -30,36 +43,42 @@ prompt = PromptTemplate(
 chain = LLMChain(
     llm=llm,
     prompt=prompt,
-    # verbose=True,
+    verbose=True,
     memory=memory
 )
 ```
 
-### Step 2. PromptTemplate을 이용해 API 호출
+### Step 2. chain을 이용해 API 호출
 
 ```python
- async def answer(self):
-    # Add to the answer as the chatbot responds.
-    answer = ""
-    self.chat_history.append((self.question, answer))
+ def answer(self):
+    if len(self.question) < 1:
+        return None
 
-    answer = chain.run(self.question)
-    answer = answer.replace("\n", "<br />")
-    memory.save_context({"input": self.chat_history[-1][0]}, {"output": answer})
+    # Set the processing flag to true and yield.
+    self.processing = True
 
-    for i in range(len(answer)):
-        # Pause to show the streaming effect.
-        await asyncio.sleep(0.1)
-        # Add one letter at a time to the output.
-        self.chat_history[-1] = (
-            self.chat_history[-1][0],
-            answer[: i + 1],
-        )
-        yield
+    print(f'질문: {self.question}')
+    # img from https://icons8.com/preloaders/
+    self.chat_history.append((self.question, "<img src='/loading.png'>"))
 
     # Clear the question input.
     self.question = ""
 
-    # Yield here to clear the frontend input before continuing.
     yield
+
+    answer = chain.run(self.chat_history[-1][0])
+
+    print(f'답변: {answer}')
+
+    self.chat_history[-1] = (
+        self.chat_history[-1][0],
+        answer.replace('\n', '<br />'),
+    )
+
+    yield
+
+    print(f'처리 완료')
+    # Toggle the processing flag.
+    self.processing = False
 ```
