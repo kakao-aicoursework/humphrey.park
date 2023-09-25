@@ -7,28 +7,13 @@ import reflex as rx
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 
-# 참조: https://python.langchain.com/docs/use_cases/chatbots
-from langchain.memory import ConversationSummaryMemory
-
-# 참조: https://python.langchain.com/docs/modules/model_io/prompts/prompt_templates/
-from langchain.prompts import (
-    PromptTemplate
-)
-
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 llm = ChatOpenAI(model_name='gpt-3.5-turbo-16k', temperature=0.9)
 
-def loadFile(file_path: str) -> str:
-    with open(file_path, "r") as f:
-        str = f.read()
-    return str
-
-
 memory = ConversationSummaryMemory(llm=llm)
-# 카카오싱크에 대한 데이터를 초기 대화 기록에 남겨둠
-memory.save_context({"input": loadFile('./assets/project_data_카카오싱크.txt')}, {"output": ''})
 
+# 카카오싱크에 대한 데이터를 초기 대화 기록에 남겨둠
 prompt = PromptTemplate(
     input_variables=["q"],
     template="{q}"

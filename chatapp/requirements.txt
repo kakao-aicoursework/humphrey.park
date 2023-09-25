@@ -1,0 +1,12 @@
+reflex==0.2.7
+asyncio==3.4.3
+openai==0.28.0
+langchain==0.0.250
+pydantic==1.10.11
+pandas==2.0.3
+bs4==0.0.1
+tiktoken==0.5.1
+requests==2.31.0
+chromadb==0.3.23
+unstructured
+google-api-wrapper
