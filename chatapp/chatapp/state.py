@@ -1,30 +1,7 @@
 # state.py
-import asyncio
-import os
-
-import openai
 import reflex as rx
-from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
-
-llm = ChatOpenAI(model_name='gpt-3.5-turbo-16k', temperature=0.9)
-
-memory = ConversationSummaryMemory(llm=llm)
-
-# 카카오싱크에 대한 데이터를 초기 대화 기록에 남겨둠
-prompt = PromptTemplate(
-    input_variables=["q"],
-    template="{q}"
-)
-
-chain = LLMChain(
-    llm=llm,
-    prompt=prompt,
-    verbose=True,
-    memory=memory
-)
+from chatapp.gpt import ask_question
 
 class State(rx.State):
     # The current question being asked.
@@ -52,7 +29,7 @@ class State(rx.State):
 
         yield
 
-        answer = chain.run(self.chat_history[-1][0])
+        answer = ask_question(self.chat_history[-1][0])
 
         print(f'답변: {answer}')
 
